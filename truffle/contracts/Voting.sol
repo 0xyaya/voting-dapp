@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.19;
+pragma solidity 0.8.13;
 import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
 
 
 /**
- * @author  .
- * @title   .
- * @dev     .
+ * @author Cyril Castagnet
+ * @title Voting
+ * @dev Satoshi dev project 3 smart contract
  */
 
 contract Voting is Ownable {
