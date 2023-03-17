@@ -6,11 +6,12 @@ const ProposalList = ({ proposals, onVote }) => {
   };
 
   return (
-    <div className="mt-4 space-y-2">
+    <div className="flex flex-wrap justify-start mt-4">
       {proposals.map((proposal, index) => (
         <ProposalItem
           key={index}
-          author="0x326a.."
+          author={proposal.from}
+          txHash={proposal.txHash}
           id={proposal.id}
           description={proposal.description}
           voteCount={proposal.voteCount}

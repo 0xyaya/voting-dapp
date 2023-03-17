@@ -8,7 +8,7 @@ import NoticeWrongNetwork from '../components/Notice/NoticeWrongNetwork';
 
 const Home = () => {
   const {
-    state: { artifact, contract, accounts, status }
+    state: { artifact, web3, contract, accounts, status }
   } = useEth();
   const [proposalDescription, setProposalDescription] = useState('');
   const [proposals, setProposals] = useState([]);
@@ -45,16 +45,23 @@ const Home = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       if (contract) {
-        const oldEvents = await contract.getPastEvents('ProposalRegistered', {
-          fromBlock: 0,
-          toBlock: 'latest'
-        });
-        const tmpProposals = [];
-        for (let i = 1; i <= oldEvents.length; i++) {
-          const proposal = await contract.methods.getOneProposal(i).call({ from: accounts[0] });
-          tmpProposals.push({ ...proposal, id: i });
-        }
-        setProposals((props) => tmpProposals);
+        await contract
+          .getPastEvents('ProposalRegistered', {
+            fromBlock: 0,
+            toBlock: 'latest'
+          })
+          .then(async (events) => {
+            const tmpProposals = await Promise.all(
+              events.map(async (event, index) => {
+                const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+                const proposal = await contract.methods
+                  .getOneProposal(index)
+                  .call({ from: accounts[0] });
+                return { ...proposal, from: tx.from, id: index, txHash: tx.transactionHash };
+              })
+            );
+            setProposals(tmpProposals);
+          });
 
         await contract.events
           .ProposalRegistered({ fromBlock: 'earliest' })
@@ -83,7 +90,7 @@ const Home = () => {
     if (status != 'ProposalsRegistrationStarted') {
       setError({
         title: 'Bad status',
-        message: 'an error message'
+        message: "You can't create a proposal now."
       });
     } else {
       await contract.methods.addProposal(proposalDescription).send({ from: accounts[0] });
@@ -94,7 +101,7 @@ const Home = () => {
     if (status != 'VottingSessionStarted') {
       setError({
         title: 'Bad status',
-        message: 'an error message'
+        message: "You can't vote now."
       });
     } else {
       await contract.methods.setVote(id).send({ from: accounts[0] });
@@ -113,7 +120,7 @@ const Home = () => {
           <div className="flex flex-row justify-between text-center">
             <div className="space-x-4">
               <input
-                className="rounded-md h-8 p-2 my-2"
+                className="rounded-md h-8 p-2 my-2 border border-sky-800"
                 type="text"
                 placeholder="Your proposal description"
                 onChange={proposalDescriptionHandler}
@@ -124,9 +131,9 @@ const Home = () => {
                 disable={status != 1 ?? true}
               />
             </div>
-            <div className="text-slate-700">
-              Workflow Status:{' '}
-              <span className="text-slate-700 text-xl border border-slate-700 rounded-lg p-2 my-2">
+            <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
+              <label>Workflow Status:</label>
+              <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-2 lg:mt-0">
                 {status}
               </span>
             </div>
