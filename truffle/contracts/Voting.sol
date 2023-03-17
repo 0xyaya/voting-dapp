@@ -11,21 +11,33 @@ import "../node_modules/@openzeppelin/contracts/access/Ownable.sol";
  */
 
 contract Voting is Ownable {
-
+    /**
+    * @dev _wid Secret winning proposal identification number
+    * @dev winningProposalID Final winning proposal identification number
+     */
     uint public winningProposalID;
     uint private _wid;
-    
+
+    /**
+    * @dev Structure to define Voter users
+    */
     struct Voter {
         bool isRegistered;
         bool hasVoted;
         uint votedProposalId;
     }
 
+    /**
+    * @dev Structure to define Proposal candidates
+    */
     struct Proposal {
         string description;
         uint voteCount;
     }
 
+    /**
+    * @dev Structure to define Voter users
+    */
     enum  WorkflowStatus {
         RegisteringVoters,
         ProposalsRegistrationStarted,
@@ -35,11 +47,22 @@ contract Voting is Ownable {
         VotesTallied
     }
 
+    /**
+    * @dev State variable to store Worfkflow state
+    */
     WorkflowStatus public workflowStatus;
+    /**
+    * @dev List of propoposals candidates stored on-chain
+    */
     Proposal[] proposalsArray;
+    /**
+    * @dev Voters on-chain registry
+    */
     mapping (address => Voter) voters;
 
-
+    /**
+    * @dev Event for client comunications
+    */
     event VoterRegistered(address voterAddress); 
     event WorkflowStatusChange(WorkflowStatus previousStatus, WorkflowStatus newStatus);
     event ProposalRegistered(uint proposalId);
@@ -117,7 +140,7 @@ contract Voting is Ownable {
      * @dev Registers a proposal
      * @param   _desc Text description of the proposal
      */
-    function addProposal(string calldata _desc) external onlyVoters atWorkflowStatus(WorkFlowStatus.ProposalsRegistrationStarted) {
+    function addProposal(string calldata _desc) external onlyVoters atWorkflowStatus(WorkflowStatus.ProposalsRegistrationStarted) {
         require(keccak256(abi.encode(_desc)) != keccak256(abi.encode("")), "You must enter a description");
 
         Proposal memory proposal;
@@ -133,7 +156,7 @@ contract Voting is Ownable {
      * @dev Allows registered voters to vote for a registered proposal
      * @param   _id Voted proposal identification number
      */
-    function setVote(uint _id) external onlyVoters atWorkflowStatus(WorkFlowStatus.VotingSessionStarted) {
+    function setVote(uint _id) external onlyVoters atWorkflowStatus(WorkflowStatus.VotingSessionStarted) {
         require(voters[msg.sender].hasVoted != true, "You have already voted");
         require(_id < proposalsArray.length, "Proposal not found"); 
 
@@ -141,7 +164,7 @@ contract Voting is Ownable {
         voters[msg.sender].hasVoted = true;
         proposalsArray[_id].voteCount++;
 
-        if (proposalsArray[_id].voteCount > proposalsArray[_winningProposalId].voteCount) _wid = _id;
+        if (proposalsArray[_id].voteCount > proposalsArray[_wid].voteCount) _wid = _id;
 
         emit Voted(msg.sender, _id);
     }
@@ -165,7 +188,7 @@ contract Voting is Ownable {
     /**
      * @dev Allows admin user to end proposal registration period
      */
-    function endProposalsRegistering() external onlyOwner atWorkflowStatus(WorkFlowStatus.ProposalsRegistrationStarted) workflowStatusTransit {
+    function endProposalsRegistering() external onlyOwner atWorkflowStatus(WorkflowStatus.ProposalsRegistrationStarted) workflowStatusTransit {
         emit WorkflowStatusChange(
             WorkflowStatus.ProposalsRegistrationStarted, 
             WorkflowStatus.ProposalsRegistrationEnded
@@ -175,7 +198,7 @@ contract Voting is Ownable {
     /**
      * @dev Allows admin user to start voting session
      */
-    function startVotingSession() external onlyOwner atWorkflowStatus(WorkFlowStatus.ProposalsRegistrationEnded) workflowStatusTransit {
+    function startVotingSession() external onlyOwner atWorkflowStatus(WorkflowStatus.ProposalsRegistrationEnded) workflowStatusTransit {
         emit WorkflowStatusChange(
             WorkflowStatus.ProposalsRegistrationEnded, 
             WorkflowStatus.VotingSessionStarted
@@ -185,7 +208,7 @@ contract Voting is Ownable {
     /**
      * @dev Allows admin user to end voting session
      */
-    function endVotingSession() external onlyOwner atWorkflowStatus(WorkFlowStatus.VotingSessionStarted) workflowStatusTransit {
+    function endVotingSession() external onlyOwner atWorkflowStatus(WorkflowStatus.VotingSessionStarted) workflowStatusTransit {
         emit WorkflowStatusChange(
             WorkflowStatus.VotingSessionStarted, 
             WorkflowStatus.VotingSessionEnded
@@ -195,7 +218,7 @@ contract Voting is Ownable {
     /**
      * @dev Allows admin user to tally votes and set winning proposal
      */
-    function tallyVotes() external onlyOwner atWorkflowStatus(WorkFlowStatus.VotingSessionEnded) workflowStatusTransit {
+    function tallyVotes() external onlyOwner atWorkflowStatus(WorkflowStatus.VotingSessionEnded) workflowStatusTransit {
         winningProposalID = _wid;
 
         emit WorkflowStatusChange(
