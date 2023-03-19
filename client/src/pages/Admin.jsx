@@ -32,7 +32,12 @@ const Admin = () => {
     const fetchWinner = async () => {
       if (contract && status==='VotesTallied' && !winnerProposal) {
         const winnerProposal = await contract.methods.winningProposalID.call();
-        if (winnerProposal) {
+        if (!owner) {
+          setError({
+            title: 'Not Admin',
+            message: 'Something weird happend, please comeback later'
+          })
+        } else {
           setWinner(winnerProposal);
         } 
       };
