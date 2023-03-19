@@ -12,7 +12,6 @@ const Admin = () => {
   const [voter, setVoter] = useState('');
   const [error, setError] = useState();
   const [owner, setOwner] = useState(false);
-  const [votersRegistered, setVotersRegistered] = useState(false)
 
   useEffect(() => {
     const checkOwner = async () => {
@@ -63,7 +62,6 @@ const Admin = () => {
       })
     } else {
       await contract.methods.startProposalsRegistering().send({ from: accounts[0] });
-      setVotersRegistered(true);
     }
   };
 
@@ -139,8 +137,6 @@ const Admin = () => {
     <>
     {error && <ErrorModal title={error.title} message={error.message} onClick={errorHandler} />}
         <div className="mt-6 mx-auto w-2/3">
-          {/* <div className="flex flex-row justify-between text-center"> */}
-
           <div className="flex flex-row justify-between text-center">
             <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
               <label>Workflow Status:</label>
@@ -149,10 +145,11 @@ const Admin = () => {
               </span>
             </div>
           </div>
-          { status==="RegisteringVoters" &&(
+          {status==="RegisteringVoters" && (
             <>
             <input className="rounded-md h-8 p-2 my-2 border border-sky-800" onChange={voterHandler} />
-            <Button label="Add Voter" onClick={addVoterHandler} /><div className="space-x-4">
+            <Button label="Add Voter" onClick={addVoterHandler} />
+            <div className="space-x-4">
             <Button label="Start Proposal" onClick={startRegistrationHandler} />
             </div>
             </>

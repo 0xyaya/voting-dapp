@@ -53,6 +53,10 @@ function EthProvider({ children }) {
         return 'ProposalsRegistrationEnded';
       case '3':
         return 'VotingSessionStarted';
+      case '4': 
+      return 'VotingSessionEnded';
+      case '6':
+        return 'VotesTallied';
     }
   };
 
