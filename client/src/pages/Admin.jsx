@@ -12,6 +12,7 @@ const Admin = () => {
   const [voter, setVoter] = useState('');
   const [error, setError] = useState();
   const [owner, setOwner] = useState(false);
+  const [winner, setWinner] = useState(null);
 
   useEffect(() => {
     const checkOwner = async () => {
@@ -26,6 +27,18 @@ const Admin = () => {
     }
     checkOwner();
   }, [contract, accounts]);
+
+  useEffect(() => {
+    const fetchWinner = async () => {
+      if (contract && status==='VotesTallied' && !winnerProposal) {
+        const winnerProposal = await contract.methods.winningProposalID.call();
+        if (winnerProposal) {
+          setWinner(winnerProposal);
+        } 
+      };
+    }
+    fetchWinner();
+  }, [contract]);
 
   const addVoterHandler = async () => {
     if (!owner) {
@@ -173,6 +186,11 @@ const Admin = () => {
             <div className="space-x-4">
               <Button label="Tally Vote" onClick={tallyVotesHandler} />
             </div>
+          )}
+          {status==="VotesTallied" && (
+            <>
+            <span>The election winner is: {winner}</span>
+            </>
           )}
         </div>    
     </>
