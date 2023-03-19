@@ -30,7 +30,7 @@ const Admin = () => {
 
   useEffect(() => {
     const fetchWinner = async () => {
-      if (contract && status==='VotesTallied' && !winnerProposal) {
+      if (contract && status==='VotesTallied' && !winner) {
         const winnerProposal = await contract.methods.winningProposalID.call();
         if (!owner) {
           setError({
