@@ -31,13 +31,13 @@ const Admin = () => {
   useEffect(() => {
     const fetchWinner = async () => {
       if (contract && status==='VotesTallied' && !winner) {
-        const winnerProposal = await contract.methods.winningProposalID.call();
         if (!owner) {
           setError({
             title: 'Not Admin',
             message: 'Something weird happend, please comeback later'
           })
         } else {
+          const winnerProposal = await contract.methods.winningProposalID.call();
           setWinner(winnerProposal);
         } 
       };
