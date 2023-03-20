@@ -52,6 +52,7 @@ const Admin = () => {
       setError('You are not authorised');
     } else {
       await contract.methods.startProposalsRegistering().send({ from: accounts[0] });
+      setSuccess('Proposal Registration has started!');
     }
   };
 
@@ -62,6 +63,7 @@ const Admin = () => {
       setError('You are not authorised');
     } else {
       await contract.methods.endProposalsRegistering().send({ from: accounts[0] });
+      setSuccess('Proposal Registration has ended!');
     }
   };
 
@@ -72,6 +74,7 @@ const Admin = () => {
       setError('You are not authorised');
     } else {
       if (contract) await contract.methods.startVotingSession().send({ from: accounts[0] });
+      setSuccess('Voting Session has begun!')
     }
   };
 
@@ -82,6 +85,7 @@ const Admin = () => {
       setError('You are not authorised');
     } else {
       await contract.methods.endVotingSession().send({ from: accounts[0] });
+      setSuccess('Voting Session has ended!')
     }
   };
 
@@ -93,6 +97,7 @@ const Admin = () => {
     } else {
       if (contract) {
         await contract.methods.tallyVotes().send({ from: accounts[0] });
+        setSuccess('Votes have been tallied!');
       }
     }
   };
