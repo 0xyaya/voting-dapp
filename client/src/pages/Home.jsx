@@ -115,6 +115,7 @@ const Home = () => {
       setError('VotingSessionStarted status required');
     } else {
       await contract.methods.setVote(id).send({ from: accounts[0] });
+      setSuccess('You successfully voted!');
     }
   };
 
