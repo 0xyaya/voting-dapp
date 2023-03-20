@@ -53,8 +53,8 @@ const Admin = () => {
       })
     } else {
       await contract.methods.addVoter(voter).send({ from: accounts[0] });
+      setVoter('');
     }
-    setVoter('');
   };
 
   const voterHandler = (event) => {
