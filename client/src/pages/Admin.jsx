@@ -2,23 +2,25 @@ import { useState, useEffect } from 'react';
 import useEth from '../contexts/EthContext/useEth';
 import Button from '../components/UI/Button';
 import ErrorModal from '../components/UI/ErrorModal';
-import NoticeNoArtifact from '../components/Notice/NoticeNoArtifact';
-import NoticeWrongNetwork from '../components/Notice/NoticeWrongNetwork';
+import SuccessModal from '../components/UI/SuccessModal';
+import { actions } from '../contexts/EthContext/state';
 
 const Admin = () => {
   const {
-    state: { artifact, contract, accounts, status }
+    state: { contract, accounts, status, winner },
+    dispatch
   } = useEth();
   const [voter, setVoter] = useState('');
   const [error, setError] = useState();
   const [owner, setOwner] = useState(false);
-  const [winner, setWinner] = useState(null);
+  const [success, setSuccess] = useState();
 
   useEffect(() => {
     const checkOwner = async () => {
       if (contract) {
         const ownerAddr = await contract.methods.owner().call();
         if (accounts[0]===ownerAddr) {
+          console.log('isOwner!', ownerAddr)
           setOwner(true);
         } else {
           setOwner(false);
@@ -26,43 +28,21 @@ const Admin = () => {
       }
     }
     checkOwner();
-  }, [contract, accounts]);
-
-  useEffect(() => {
-    const fetchWinner = async () => {
-      if (contract && status==='VotesTallied' && !winner) {
-        if (!owner) {
-          setError({
-            title: 'Not Admin',
-            message: 'Something weird happend, please comeback later'
-          })
-        } else {
-          const winnerProposal = await contract.methods.winningProposalID.call();
-          setWinner(winnerProposal);
-        } 
-      };
-    }
-    fetchWinner();
   }, [contract]);
 
   const addVoterHandler = async () => {
     if (!owner) {
-      setError({
-        title: 'Not Admin',
-        message: 'You are not authorised'
-      })
+      setError('You are not authorised');
     } else {
       await contract.methods.addVoter(voter).send({ from: accounts[0] });
+      setSuccess(`${voter} has been successfully added`)
       setVoter('');
     }
   };
 
   const voterHandler = (event) => {
     if (!owner) {
-      setError({
-        title: 'Not Admin',
-        message: 'You are not authorised'
-      })
+      setError('You are not authorised');
     } else {
       setVoter(event.target.value);
     }
@@ -70,15 +50,9 @@ const Admin = () => {
 
   const startRegistrationHandler = async () => {
     if (status !== 'RegisteringVoters') {
-      setError({
-        title: 'Bad Status',
-        message: 'You cannot do that now'
-      });
+      setError('RegisteringVoters status required')
     } else if (!owner) {
-      setError({
-        title: 'Not Admin',
-        message: 'You are not authorised'
-      })
+      setError('You are not authorised');
     } else {
       await contract.methods.startProposalsRegistering().send({ from: accounts[0] });
     }
@@ -86,15 +60,9 @@ const Admin = () => {
 
   const endRegistrationHandler = async () => {
     if (status !== 'ProposalsRegistrationStarted') {
-      setError({
-        title: 'Bad Status',
-        message: 'You cannot do that now'
-      });
+      setError('ProposalsRegistrationStarted status required');
     } else if (!owner) {
-      setError({
-        title: 'Not Admin',
-        message: 'You are not authorised'
-      })
+      setError('You are not authorised');
     } else {
       await contract.methods.endProposalsRegistering().send({ from: accounts[0] });
     }
@@ -102,31 +70,19 @@ const Admin = () => {
 
   const startVotingHandler = async () => {
     if (status !== 'ProposalsRegistrationEnded') {
-      setError({
-        title: 'Bad Status',
-        message: 'You cannot do that now'
-      });
+      setError('ProposalsRegistrationEnded');
     } else if (!owner) {
-      setError({
-        title: 'Not Admin',
-        message: 'You are not authorised'
-      })
+      setError('You are not authorised');
     } else {
-      await contract.methods.startVotingSession().send({ from: accounts[0] });
+      if (contract) await contract.methods.startVotingSession().send({ from: accounts[0] });
     }
   };
 
   const endVotingHandler = async () => {
     if (status !== 'VotingSessionStarted') {
-      setError({
-        title: 'Bad Status',
-        message: 'You cannot do that now'
-      });
+      setError('VotingSessionStarted status required')
     } else if (!owner) {
-      setError({
-        title: 'Not Admin',
-        message: 'You are not authorised'
-      })
+      setError('You are not authorised');
     } else {
       await contract.methods.endVotingSession().send({ from: accounts[0] });
     }
@@ -134,17 +90,13 @@ const Admin = () => {
 
   const tallyVotesHandler = async () => {
     if (status !== 'VotingSessionEnded') {
-      setError({
-        title: 'Bad Status',
-        message: 'You cannot do that now'
-      });
+      setError('VotingSessionEnded status required');
     } else if (!owner) {
-      setError({
-        title: 'Not Admin',
-        message: 'You are not authorised'
-      })
+      setError('You are not authorised')
     } else {
-      await contract.methods.tallyVotes().send({ from: accounts[0] });
+      if (contract) {
+        await contract.methods.tallyVotes().send({ from: accounts[0] });
+      }
     }
   };
 
@@ -152,9 +104,14 @@ const Admin = () => {
     setError(null);
   };
 
+  const successHandler = () => {
+    setSuccess(null);
+  };
+
   const admin = (
     <>
     {error && <ErrorModal title={error.title} message={error.message} onClick={errorHandler} />}
+    {success && <SuccessModal message={success} onClick={successHandler}/>}
         <div className="mt-6 mx-auto w-2/3">
           <div className="flex flex-row justify-between text-center">
             <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
@@ -195,7 +152,12 @@ const Admin = () => {
           )}
           {status==="VotesTallied" && (
             <>
-            <span>The election winner is: {winner}</span>
+              <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
+                <label>The election winner is: </label>
+                <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-1 lg:mt-0">
+                  {winner}
+                </span>
+              </div>
             </>
           )}
         </div>    
@@ -204,7 +166,7 @@ const Admin = () => {
 
   return (
     <div className="flex flex-col mx-auto bg-background bg-cover min-h-screen">
-      {!artifact ? <NoticeNoArtifact /> : !contract ? <NoticeWrongNetwork /> : admin}
+      {admin}
     </div>
   );
 };
