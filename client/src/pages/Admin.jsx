@@ -54,6 +54,7 @@ const Admin = () => {
     } else {
       await contract.methods.addVoter(voter).send({ from: accounts[0] });
     }
+    setVoter('');
   };
 
   const voterHandler = (event) => {
@@ -68,7 +69,7 @@ const Admin = () => {
   };
 
   const startRegistrationHandler = async () => {
-    if (status !== 'ResiteringVoters') {
+    if (status !== 'RegisteringVoters') {
       setError({
         title: 'Bad Status',
         message: 'You cannot do that now'
@@ -165,7 +166,7 @@ const Admin = () => {
           </div>
           {status==="RegisteringVoters" && (
             <>
-            <input className="rounded-md h-8 p-2 my-2 border border-sky-800" onChange={voterHandler} />
+            <input className="rounded-md h-8 p-2 my-2 border border-sky-800" value={voter} onInput={voterHandler} />
             <Button label="Add Voter" onClick={addVoterHandler} />
             <div className="space-x-4">
             <Button label="Start Proposal" onClick={startRegistrationHandler} />
