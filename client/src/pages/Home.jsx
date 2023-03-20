@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import useEth from '../contexts/EthContext/useEth';
 import Button from '../components/UI/Button';
 import ErrorModal from '../components/UI/ErrorModal';
+import SuccessModal from '../components/UI/SuccessModal';
 import ProposalList from '../components/Proposal/ProposalList';
 import NoticeNoArtifact from '../components/Notice/NoticeNoArtifact';
 import NoticeWrongNetwork from '../components/Notice/NoticeWrongNetwork';
@@ -112,6 +113,10 @@ const Home = () => {
 
   const errorHandler = () => {
     setError(null);
+  };
+
+  const successHandler = () => {
+    setSuccess(null);
   };
 
   const home = (
