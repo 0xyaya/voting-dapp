@@ -54,10 +54,11 @@ const Home = () => {
             const tmpProposals = await Promise.all(
               events.map(async (event, index) => {
                 const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+                const id = index + 1;
                 const proposal = await contract.methods
-                  .getOneProposal(index)
+                  .getOneProposal(id)
                   .call({ from: accounts[0] });
-                return { ...proposal, from: tx.from, id: index, txHash: tx.transactionHash };
+                return { ...proposal, from: tx.from, id: id, txHash: tx.transactionHash };
               })
             );
             setProposals(tmpProposals);
@@ -70,7 +71,12 @@ const Home = () => {
               .getOneProposal(event.returnValues.proposalId)
               .call({ from: accounts[0] });
 
-            updateProposalsHandler({ ...proposal, id: event.returnValues.proposalId });
+            updateProposalsHandler({
+              ...proposal,
+              from: 'testAddr',
+              txHash: 'testHash',
+              id: event.returnValues.proposalId
+            });
           });
       }
     };

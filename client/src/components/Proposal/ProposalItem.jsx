@@ -1,7 +1,7 @@
 import Button from '../UI/Button';
 import ExtLink from '../../../public/ext-link.svg';
 
-const ProposalItem = ({ id, description, author, txHash, voteCount, onClick }) => {
+const ProposalItem = ({ id, description, from, txHash, voteCount, onClick }) => {
   const onClickHandler = () => {
     onClick(id);
   };
@@ -15,7 +15,7 @@ const ProposalItem = ({ id, description, author, txHash, voteCount, onClick }) =
   };
 
   const txLink = `https://mumbai.polygonscan.com/tx/${txHash}`;
-  const authorLink = `https://mumbai.polygonscan.com/address/${author}`;
+  const fromLink = `https://mumbai.polygonscan.com/address/${from}`;
 
   return (
     <div className="flex flex-col w-full lg:w-1/4 mr-6 my-3 p-4 bg-cyan-100 text-slate-700 hover:bg-cyan-200 px-4 rounded-lg border border-sky-800 duration-150">
@@ -24,11 +24,11 @@ const ProposalItem = ({ id, description, author, txHash, voteCount, onClick }) =
         <span>{id}</span>
         <p>Description: {description}</p>
       </div>
-      <div class="flex-grow border-t border-gray-400"></div>
+      <div className="flex-grow border-t border-gray-400"></div>
 
       <div className="my-4">
-        <a href={authorLink} className="underline flex flex-row" target="_blank">
-          From: {truncateEthAddress(author)}
+        <a href={fromLink} className="underline flex flex-row" target="_blank">
+          From: {truncateEthAddress(from)}
           <img src={ExtLink} alt="Address Link" className="w-4" />
         </a>
         <a href={txLink} className="underline flex flex-row" target="_blank">

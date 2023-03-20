@@ -10,7 +10,7 @@ const ProposalList = ({ proposals, onVote }) => {
       {proposals.map((proposal, index) => (
         <ProposalItem
           key={index}
-          author={proposal.from}
+          from={proposal.from}
           txHash={proposal.txHash}
           id={proposal.id}
           description={proposal.description}

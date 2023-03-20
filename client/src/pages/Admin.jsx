@@ -3,12 +3,10 @@ import useEth from '../contexts/EthContext/useEth';
 import Button from '../components/UI/Button';
 import ErrorModal from '../components/UI/ErrorModal';
 import SuccessModal from '../components/UI/SuccessModal';
-import { actions } from '../contexts/EthContext/state';
 
 const Admin = () => {
   const {
-    state: { contract, accounts, status, winner },
-    dispatch
+    state: { contract, accounts, status, winner }
   } = useEth();
   const [voter, setVoter] = useState('');
   const [error, setError] = useState();
@@ -19,14 +17,13 @@ const Admin = () => {
     const checkOwner = async () => {
       if (contract) {
         const ownerAddr = await contract.methods.owner().call();
-        if (accounts[0]===ownerAddr) {
-          console.log('isOwner!', ownerAddr)
+        if (accounts[0] === ownerAddr) {
           setOwner(true);
         } else {
           setOwner(false);
         }
       }
-    }
+    };
     checkOwner();
   }, [contract]);
 
@@ -35,7 +32,7 @@ const Admin = () => {
       setError('You are not authorised');
     } else {
       await contract.methods.addVoter(voter).send({ from: accounts[0] });
-      setSuccess(`${voter} has been successfully added`)
+      setSuccess(`${voter} has been successfully added`);
       setVoter('');
     }
   };
@@ -50,7 +47,7 @@ const Admin = () => {
 
   const startRegistrationHandler = async () => {
     if (status !== 'RegisteringVoters') {
-      setError('RegisteringVoters status required')
+      setError('RegisteringVoters status required');
     } else if (!owner) {
       setError('You are not authorised');
     } else {
@@ -80,7 +77,7 @@ const Admin = () => {
 
   const endVotingHandler = async () => {
     if (status !== 'VotingSessionStarted') {
-      setError('VotingSessionStarted status required')
+      setError('VotingSessionStarted status required');
     } else if (!owner) {
       setError('You are not authorised');
     } else {
@@ -92,7 +89,7 @@ const Admin = () => {
     if (status !== 'VotingSessionEnded') {
       setError('VotingSessionEnded status required');
     } else if (!owner) {
-      setError('You are not authorised')
+      setError('You are not authorised');
     } else {
       if (contract) {
         await contract.methods.tallyVotes().send({ from: accounts[0] });
@@ -110,65 +107,65 @@ const Admin = () => {
 
   const admin = (
     <>
-    {error && <ErrorModal title={error.title} message={error.message} onClick={errorHandler} />}
-    {success && <SuccessModal message={success} onClick={successHandler}/>}
-        <div className="mt-6 mx-auto w-2/3">
-          <div className="flex flex-row justify-between text-center">
-            <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
-              <label>Workflow Status:</label>
-              <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-2 lg:mt-0">
-                {status}
-              </span>
-            </div>
+      {error && <ErrorModal title={error.title} message={error.message} onClick={errorHandler} />}
+      {success && <SuccessModal message={success} onClick={successHandler} />}
+      <div className="mt-6 mx-auto w-2/3">
+        <div className="flex flex-row justify-between text-center">
+          <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
+            <label>Workflow Status:</label>
+            <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-2 lg:mt-0">
+              {status}
+            </span>
           </div>
-          {status==="RegisteringVoters" && (
-            <>
-            <input className="rounded-md h-8 p-2 my-2 border border-sky-800" value={voter} onInput={voterHandler} />
+        </div>
+        {status === 'RegisteringVoters' && (
+          <>
+            <input
+              className="rounded-md h-8 p-2 my-2 border border-sky-800"
+              value={voter}
+              onInput={voterHandler}
+            />
             <Button label="Add Voter" onClick={addVoterHandler} />
             <div className="space-x-4">
-            <Button label="Start Proposal" onClick={startRegistrationHandler} />
+              <Button label="Start Proposal" onClick={startRegistrationHandler} />
             </div>
-            </>
-          )}
-          {status==="ProposalsRegistrationStarted" && (
-            <div className="space-x-4">
-              <Button label="End Proposal" onClick={endRegistrationHandler} />
+          </>
+        )}
+        {status === 'ProposalsRegistrationStarted' && (
+          <div className="space-x-4">
+            <Button label="End Proposal" onClick={endRegistrationHandler} />
+          </div>
+        )}
+        {status === 'ProposalsRegistrationEnded' && (
+          <div className="space-x-4">
+            <Button label="Start Voting" onClick={startVotingHandler} />
+          </div>
+        )}
+        {status === 'VotingSessionStarted' && (
+          <div className="space-x-4">
+            <Button label="End Voting" onClick={endVotingHandler} />
+          </div>
+        )}
+        {status === 'VotingSessionEnded' && (
+          <div className="space-x-4">
+            <Button label="Tally Vote" onClick={tallyVotesHandler} />
+          </div>
+        )}
+        {status === 'VotesTallied' && (
+          <>
+            <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
+              <label>The election winner is: </label>
+              <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-1 lg:mt-0">
+                {winner}
+              </span>
             </div>
-          )}
-          {status==="ProposalsRegistrationEnded" && (
-            <div className="space-x-4">
-              <Button label="Start Voting" onClick={startVotingHandler} />
-            </div>
-          )}
-          {status==="VotingSessionStarted" && (
-            <div className="space-x-4">
-              <Button label="End Voting" onClick={endVotingHandler} />
-            </div>
-          )}
-          {status==="VotingSessionEnded" && (
-            <div className="space-x-4">
-              <Button label="Tally Vote" onClick={tallyVotesHandler} />
-            </div>
-          )}
-          {status==="VotesTallied" && (
-            <>
-              <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
-                <label>The election winner is: </label>
-                <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-1 lg:mt-0">
-                  {winner}
-                </span>
-              </div>
-            </>
-          )}
-        </div>    
+          </>
+        )}
+      </div>
     </>
-  )
-
-  return (
-    <div className="flex flex-col mx-auto bg-background bg-cover min-h-screen">
-      {admin}
-    </div>
   );
+
+  return <div className="flex flex-col mx-auto bg-background bg-cover min-h-screen">{admin}</div>;
 };
 
 export default Admin;
