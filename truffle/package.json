@@ -11,6 +11,7 @@
     "dotenv": "^16.0.3"
   },
   "devDependencies": {
-    "@openzeppelin/contracts": "^4.8.2"
+    "@openzeppelin/contracts": "^4.8.2",
+    "buidler-gas-reporter": "^0.1.4"
   }
 }
