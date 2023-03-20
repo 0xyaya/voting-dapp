@@ -6,10 +6,10 @@ const ProposalItem = ({ id, description, from, txHash, voteCount, onClick }) => 
     onClick(id);
   };
 
-  var truncateRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
+  const truncateRegex = /^(0x[a-zA-Z0-9]{4})[a-zA-Z0-9]+([a-zA-Z0-9]{4})$/;
 
-  var truncateEthAddress = function (address) {
-    var match = address.match(truncateRegex);
+  const truncateEthAddress = (address) => {
+    const match = address.match(truncateRegex);
     if (!match) return address;
     return match[1] + '\u2026' + match[2];
   };

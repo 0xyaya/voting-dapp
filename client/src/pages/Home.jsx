@@ -14,6 +14,7 @@ const Home = () => {
   const [proposals, setProposals] = useState([]);
   const [registered, setRegistered] = useState(false);
   const [error, setError] = useState();
+  const [success, setSuccess] = useState();
 
   useEffect(() => {
     const checkAccountRegistering = async () => {
@@ -94,21 +95,16 @@ const Home = () => {
 
   const createProposalHandler = async () => {
     if (status != 'ProposalsRegistrationStarted') {
-      setError({
-        title: 'Bad status',
-        message: "You can't create a proposal now."
-      });
+      setError('ProposalsRegistrationStarted status required');
     } else {
       await contract.methods.addProposal(proposalDescription).send({ from: accounts[0] });
+      setSuccess('Proposal successfully created');
     }
   };
 
   const onVoteHandler = async (id) => {
     if (status != 'VotingSessionStarted') {
-      setError({
-        title: 'Bad status',
-        message: "You can't vote now."
-      });
+      setError('VotingSessionStarted status required');
     } else {
       await contract.methods.setVote(id).send({ from: accounts[0] });
     }
@@ -121,6 +117,7 @@ const Home = () => {
   const home = (
     <>
       {error && <ErrorModal title={error.title} message={error.message} onClick={errorHandler} />}
+      {success && <SuccessModal message={success} onClick={successHandler} />}
       {registered && (
         <div className="mt-6 mx-auto w-2/3">
           <div className="flex flex-row justify-between text-center">
