@@ -12,18 +12,24 @@ function EthProvider({ children }) {
       const accounts = await web3.eth.requestAccounts();
       const networkID = await web3.eth.net.getId();
       const { abi } = artifact;
-      let address, contract, status;
+      let address, contract, status, winner;
       try {
         address = artifact.networks[networkID].address;
         contract = new web3.eth.Contract(abi, address);
         status = await contract.methods.workflowStatus().call({ from: accounts[0] });
+        if (workflowStatusToString(status) === 'VotesTallied') {
+          winner = await contract.methods.winningProposalID().call();
+        }
         await contract.events
           .WorkflowStatusChange({ fromBlock: 'earliest' })
-          .on('data', (event) => {
+          .on('data', async (event) => {
             let newStatus = event.returnValues.newStatus;
+            if (workflowStatusToString(newStatus) === 'VotesTallied') {
+              winner = await contract.methods.winningProposalID().call();
+            }
             dispatch({
               type: actions.updateStatus,
-              data: { ...state, status: workflowStatusToString(newStatus) }
+              data: { ...state, status: workflowStatusToString(newStatus), winner }
             });
           });
       } catch (err) {
@@ -37,7 +43,8 @@ function EthProvider({ children }) {
           accounts,
           networkID,
           contract,
-          status: workflowStatusToString(status)
+          status: workflowStatusToString(status),
+          winner,
         }
       });
     }
@@ -53,6 +60,10 @@ function EthProvider({ children }) {
         return 'ProposalsRegistrationEnded';
       case '3':
         return 'VotingSessionStarted';
+      case '4': 
+        return 'VotingSessionEnded';
+      case '5':
+        return 'VotesTallied';
     }
   };
 

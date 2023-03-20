@@ -98,7 +98,7 @@ const Home = () => {
   };
 
   const onVoteHandler = async (id) => {
-    if (status != 'VottingSessionStarted') {
+    if (status != 'VotingSessionStarted') {
       setError({
         title: 'Bad status',
         message: "You can't vote now."
