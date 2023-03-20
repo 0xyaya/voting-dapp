@@ -74,7 +74,7 @@ const Admin = () => {
       setError('You are not authorised');
     } else {
       if (contract) await contract.methods.startVotingSession().send({ from: accounts[0] });
-      setSuccess('Voting Session has begun!')
+      setSuccess('Voting Session has begun!');
     }
   };
 
@@ -85,7 +85,7 @@ const Admin = () => {
       setError('You are not authorised');
     } else {
       await contract.methods.endVotingSession().send({ from: accounts[0] });
-      setSuccess('Voting Session has ended!')
+      setSuccess('Voting Session has ended!');
     }
   };
 
@@ -159,7 +159,7 @@ const Admin = () => {
         {status === 'VotesTallied' && (
           <>
             <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
-              <label>The election winner is: </label>
+              <label>The election winner is the proposal ID: </label>
               <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-1 lg:mt-0">
                 {winner}
               </span>

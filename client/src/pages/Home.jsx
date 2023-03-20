@@ -9,7 +9,7 @@ import NoticeWrongNetwork from '../components/Notice/NoticeWrongNetwork';
 
 const Home = () => {
   const {
-    state: { artifact, web3, contract, accounts, status }
+    state: { artifact, web3, contract, accounts, status, winner }
   } = useEth();
   const [proposalDescription, setProposalDescription] = useState('');
   const [proposals, setProposals] = useState([]);
@@ -141,6 +141,16 @@ const Home = () => {
                 disable={status != 1 ?? true}
               />
             </div>
+            {status === 'VotesTallied' && (
+              <>
+                <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
+                  <label>The election winner is the proposal ID: </label>
+                  <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-1 lg:mt-0">
+                    {winner}
+                  </span>
+                </div>
+              </>
+            )}
             <div className="flex flex-col lg:flex-row items-center lg:space-x-4 text-slate-700 align">
               <label>Workflow Status:</label>
               <span className="text-sky-800 text-xl border border-sky-800 rounded-lg p-2 lg:mt-0">
