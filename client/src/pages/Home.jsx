@@ -73,12 +73,18 @@ const Home = () => {
               .getOneProposal(event.returnValues.proposalId)
               .call({ from: accounts[0] });
 
-            updateProposalsHandler({
-              ...proposal,
-              from: 'testAddr',
-              txHash: 'testHash',
-              id: event.returnValues.proposalId
-            });
+            // This code doesn't works normaly with multiple events from web3
+            // It's why we let those line commented and reload page to reload proposals
+
+            // const tx = await web3.eth.getTransactionReceipt(event.transactionHash);
+
+            // updateProposalsHandler({
+            //   ...proposal,
+            //   from: tx.from,
+            //   txHash: tx.transactionHash,
+            //   id: event.returnValues.proposalId
+            // });
+            window.location.reload(false);
           });
       }
     };
@@ -86,9 +92,10 @@ const Home = () => {
     fetchEvents();
   }, [contract]);
 
-  const updateProposalsHandler = useCallback((proposal) => {
-    setProposals((props) => [...props, proposal]);
-  }, []);
+  // same as before
+  // const updateProposalsHandler = useCallback((proposal) => {
+  //   setProposals((props) => [...props, proposal]);
+  // }, []);
 
   const proposalDescriptionHandler = async (event) => {
     setProposalDescription(event.target.value);
